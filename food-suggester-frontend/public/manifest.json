@@ -1,0 +1,32 @@
+{
+  "short_name": "KitchenApp",
+  "name": "Food Suggester - Kitchen App",
+  "description": "Découvrez des recettes délicieuses basées sur vos ingrédients disponibles",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "kitchen.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "spoonfork.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FF6B35",
+  "background_color": "#FFF9EC",
+  "orientation": "portrait-primary",
+  "categories": ["food", "lifestyle", "utilities"],
+  "lang": "fr",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+}

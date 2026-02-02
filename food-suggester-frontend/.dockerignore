@@ -1,0 +1,20 @@
+# Node modules et logs
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Fichiers de build
+build
+dist
+
+# Fichiers locaux et secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Git et IDE
+.git
+.gitignore
+.vscode
+.DS_Store

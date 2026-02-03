@@ -23,7 +23,7 @@ export default defineConfig({
         theme_color: "#ffffff",
         icons: [
           {
-            src: "spoonfork.png",
+            src: "spoonforkmini.png",
             sizes: "192x192",
             type: "image/png",
           },

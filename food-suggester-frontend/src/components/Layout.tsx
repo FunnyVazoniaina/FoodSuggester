@@ -57,17 +57,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               Food Suggester
             </h1>
           </div>
-          {/* Desktop logout button */}
-          {isAuthenticated && (
+          {/* Right side buttons */}
+          <div className="flex items-center gap-2 md:gap-3">
+            {/* Chat with AI button */}
             <button
-              onClick={handleLogoutClick}
-              className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
-              title="Déconnexion"
+              onClick={() => navigate("/ai-chat")}
+              className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-3 py-2 md:px-4 md:py-2 transition-all text-xs md:text-sm font-medium flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md"
+              title="Discuter avec l'IA"
             >
-              <Icon icon="mdi:logout" className="w-4 h-4" />
-              <span>Déconnexion</span>
+              <Icon
+                icon="mdi:robot-excited-outline"
+                className="w-4 h-4 md:w-5 md:h-5"
+              />
+              <span className="hidden sm:inline">IA</span>
             </button>
-          )}
+
+            {/* Desktop logout button */}
+            {isAuthenticated && (
+              <button
+                onClick={handleLogoutClick}
+                className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                title="Déconnexion"
+              >
+                <Icon icon="mdi:logout" className="w-4 h-4" />
+                <span>Déconnexion</span>
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -220,17 +236,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
 
       {/* Main */}
-      <main
-        className="flex-1 pt-20 px-4 sm:px-8 py-8 w-full md:flex md:justify-center transition-all duration-300"
-        style={{
-          marginLeft:
-            typeof window !== "undefined" && window.innerWidth >= 768
-              ? sidebarExpanded
-                ? "256px"
-                : "80px"
-              : 0,
-        }}
-      >
+      <main className="flex-1 pt-20 px-4 sm:px-8 py-8 w-full transition-all duration-300 flex justify-center">
         <div className="w-full max-w-6xl">{children}</div>
       </main>
 

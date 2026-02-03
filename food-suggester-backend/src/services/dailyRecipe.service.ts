@@ -1,0 +1,221 @@
+import axios from "axios";
+require("dotenv").config();
+
+const apiKey = process.env.SPOONACULAR_API_KEY;
+const baseURL = process.env.SPOONACULAR_URL_BASE;
+
+if (!apiKey) {
+  throw new Error("SPOONACULAR_API_KEY is missing in .env file");
+}
+
+interface DailyRecipe {
+  id: number;
+  title: string;
+  image: string;
+  readyInMinutes: number;
+  preparationMinutes: number;
+  cookingMinutes: number;
+  servings: number;
+  calories?: number;
+  carbs?: number;
+  protein?: number;
+  fat?: number;
+  instructions?: string;
+  sourceUrl?: string;
+  steps?: Array<{
+    number: number;
+    step: string;
+  }>;
+  timestamp: string;
+}
+
+// Cache with timestamp
+let cachedRecipe: DailyRecipe | null = null;
+let cacheDate: string = "";
+
+/**
+ * Get a different recipe each day from Spoonacular API
+ * Uses the day of year to ensure consistent recipe per day
+ */
+export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
+  try {
+    const today = new Date().toDateString();
+
+    // Return cached recipe if it's the same day
+    if (cachedRecipe && cacheDate === today) {
+      return cachedRecipe;
+    }
+
+    // Fetch random recipe from Spoonacular
+    const response = await axios.get(`${baseURL}/recipes/random`, {
+      params: {
+        number: 1,
+        apiKey,
+        tags: "vegetarian,breakfast,dessert,dinner,lunch,snack",
+      },
+      timeout: 8000,
+    });
+
+    if (!response.data.recipes || response.data.recipes.length === 0) {
+      return null;
+    }
+
+    const recipe = response.data.recipes[0];
+
+    // Fetch detailed nutrition information
+    const detailedResponse = await axios.get(
+      `${baseURL}/recipes/${recipe.id}/information`,
+      {
+        params: {
+          apiKey,
+          includeNutrition: true,
+        },
+        timeout: 8000,
+      },
+    );
+
+    const details = detailedResponse.data;
+
+    // Extract nutrition info
+    let calories = 0;
+    let carbs = 0;
+    let protein = 0;
+    let fat = 0;
+
+    if (details.nutrition && details.nutrition.nutrients) {
+      const nutrients = details.nutrition.nutrients;
+      const calorieObj = nutrients.find((n: any) => n.name === "Calories");
+      const carbsObj = nutrients.find((n: any) => n.name === "Carbohydrates");
+      const proteinObj = nutrients.find((n: any) => n.name === "Protein");
+      const fatObj = nutrients.find((n: any) => n.name === "Fat");
+
+      calories = calorieObj
+        ? Math.round(calorieObj.amount / (recipe.servings || 1))
+        : 0;
+      carbs = carbsObj
+        ? Math.round((carbsObj.amount / (recipe.servings || 1)) * 10) / 10
+        : 0;
+      protein = proteinObj
+        ? Math.round((proteinObj.amount / (recipe.servings || 1)) * 10) / 10
+        : 0;
+      fat = fatObj
+        ? Math.round((fatObj.amount / (recipe.servings || 1)) * 10) / 10
+        : 0;
+    }
+
+    const dailyRecipe: DailyRecipe = {
+      id: recipe.id,
+      title: recipe.title,
+      image: recipe.image,
+      readyInMinutes: recipe.readyInMinutes || 0,
+      preparationMinutes: details.preparationMinutes || 0,
+      cookingMinutes: details.cookingMinutes || 0,
+      servings: recipe.servings || 1,
+      calories,
+      carbs,
+      protein,
+      fat,
+      instructions: details.instructions || "",
+      sourceUrl: details.sourceUrl || "",
+      steps: details.analyzedInstructions?.[0]?.steps || [],
+      timestamp: new Date().toISOString(),
+    };
+
+    // Cache the recipe
+    cachedRecipe = dailyRecipe;
+    cacheDate = today;
+
+    return dailyRecipe;
+  } catch (error: any) {
+    console.error("Error fetching daily recipe:", error.message);
+    return null;
+  }
+};
+
+/**
+ * Search for recipes by a specific tag or category
+ */
+export const getRecipeByTag = async (
+  tag: string,
+): Promise<DailyRecipe | null> => {
+  try {
+    const response = await axios.get(`${baseURL}/recipes/random`, {
+      params: {
+        number: 1,
+        apiKey,
+        tags: tag,
+      },
+      timeout: 8000,
+    });
+
+    if (!response.data.recipes || response.data.recipes.length === 0) {
+      return null;
+    }
+
+    const recipe = response.data.recipes[0];
+
+    // Fetch detailed information
+    const detailedResponse = await axios.get(
+      `${baseURL}/recipes/${recipe.id}/information`,
+      {
+        params: {
+          apiKey,
+          includeNutrition: true,
+        },
+        timeout: 8000,
+      },
+    );
+
+    const details = detailedResponse.data;
+
+    // Extract nutrition info
+    let calories = 0;
+    let carbs = 0;
+    let protein = 0;
+    let fat = 0;
+
+    if (details.nutrition && details.nutrition.nutrients) {
+      const nutrients = details.nutrition.nutrients;
+      const calorieObj = nutrients.find((n: any) => n.name === "Calories");
+      const carbsObj = nutrients.find((n: any) => n.name === "Carbohydrates");
+      const proteinObj = nutrients.find((n: any) => n.name === "Protein");
+      const fatObj = nutrients.find((n: any) => n.name === "Fat");
+
+      calories = calorieObj
+        ? Math.round(calorieObj.amount / (recipe.servings || 1))
+        : 0;
+      carbs = carbsObj
+        ? Math.round((carbsObj.amount / (recipe.servings || 1)) * 10) / 10
+        : 0;
+      protein = proteinObj
+        ? Math.round((proteinObj.amount / (recipe.servings || 1)) * 10) / 10
+        : 0;
+      fat = fatObj
+        ? Math.round((fatObj.amount / (recipe.servings || 1)) * 10) / 10
+        : 0;
+    }
+
+    const dailyRecipe: DailyRecipe = {
+      id: recipe.id,
+      title: recipe.title,
+      image: recipe.image,
+      readyInMinutes: recipe.readyInMinutes || 0,
+      preparationMinutes: details.preparationMinutes || 0,
+      cookingMinutes: details.cookingMinutes || 0,
+      servings: recipe.servings || 1,
+      calories,
+      carbs,
+      protein,
+      fat,
+      instructions: details.instructions || "",
+      sourceUrl: details.sourceUrl || "",
+      steps: details.analyzedInstructions?.[0]?.steps || [],
+      timestamp: new Date().toISOString(),
+    };
+
+    return dailyRecipe;
+  } catch (error: any) {
+    console.error("Error fetching recipe by tag:", error.message);
+    return null;
+  }
+};

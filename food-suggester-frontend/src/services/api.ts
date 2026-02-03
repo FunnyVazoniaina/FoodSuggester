@@ -81,6 +81,39 @@ export const recipeService = {
   removeFavorite: async (recipeId: number) => {
     return api.delete(`/user/favorites/${recipeId}`);
   },
+  getDailyRecipe: async () => {
+    try {
+      // Create a separate axios instance without auth for daily recipe
+      const publicApi = axios.create({
+        baseURL: API_URL,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const response = await publicApi.get("/recipes/daily");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching daily recipe:", error);
+      throw error;
+    }
+  },
+  getRecipeByTag: async (tag: string) => {
+    try {
+      const publicApi = axios.create({
+        baseURL: API_URL,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const response = await publicApi.get("/recipes/daily-by-tag", {
+        params: { tag },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching recipe by tag:", error);
+      throw error;
+    }
+  },
 };
 
 export const historyService = {

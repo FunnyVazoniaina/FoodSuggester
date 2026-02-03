@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
-import Layout from '../components/Layout';
-import RecipeCard from '../components/RecipeCard';
-import { recipeService } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Icon } from "@iconify/react";
+import Layout from "../components/Layout";
+import RecipeCard from "../components/RecipeCard";
+import { recipeService } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 interface Recipe {
   id: number;
@@ -21,7 +21,7 @@ interface Recipe {
 const FavoritesPage: React.FC = () => {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const fetchFavorites = async () => {
@@ -41,8 +41,10 @@ const FavoritesPage: React.FC = () => {
       }));
       setFavorites(formattedFavorites);
     } catch (err) {
-      console.error('Error fetching favorites:', err);
-      setError('Une erreur est survenue lors de la récupération de vos favoris');
+      console.error("Error fetching favorites:", err);
+      setError(
+        "Une erreur est survenue lors de la récupération de vos favoris",
+      );
     } finally {
       setLoading(false);
     }
@@ -58,63 +60,75 @@ const FavoritesPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold text-amber-900 flex items-center mb-3 ">
-          <Icon icon="mdi:heart" className="w-8 h-8 text-red-500 mr-3" />
-          Mes recettes favorites
-        </h1>
-        
-        <p className="text-amber-800/80 mb-4 ">
-          Retrouvez ici toutes les recettes que vous avez ajoutées à vos favoris.
-        </p>
-        
-        <hr className="border-amber-200 mb-6" />
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-          <div className="flex items-center">
-            <Icon icon="mdi:alert-circle" className="w-5 h-5 mr-2" />
-            {error}
+      <div className="min-h-screen bg-gray-50">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
+              <Icon icon="mdi:heart" className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                Mes favoris
+              </h1>
+              <p className="text-gray-600 text-sm md:text-base mt-1">
+                {favorites.length}{" "}
+                {favorites.length === 1 ? "recette" : "recettes"}
+              </p>
+            </div>
           </div>
         </div>
-      )}
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-16">
-          <Icon icon="mdi:loading" className="w-8 h-8 text-orange-600 animate-spin mb-3" />
-          <p className="text-amber-800/80 ">
-            Chargement de vos favoris...
-          </p>
-        </div>
-      ) : favorites.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {favorites.map((recipe) => (
-            <RecipeCard 
-              key={recipe.id}
-              recipe={recipe} 
-              onFavoriteToggle={handleFavoriteToggle}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex gap-3">
+            <Icon
+              icon="mdi:alert-circle"
+              className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
             />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 px-6 bg-orange-50/50 rounded-xl border border-dashed border-amber-200">
-          <Icon icon="mdi:heart-outline" className="w-16 h-16 text-red-300 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-amber-900 mb-2 ">
-            Vous n'avez pas encore de recettes favorites
-          </h3>
-          <p className="text-amber-800/70 mb-6 max-w-md mx-auto ">
-            Explorez des recettes et ajoutez-les à vos favoris pour les retrouver facilement ici.
-          </p>
-          <button 
-            onClick={() => navigate('/search')}
-            className="inline-flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium  shadow-lg hover:shadow-xl"
-          >
-            <Icon icon="mdi:magnify" className="w-5 h-5 mr-2" />
-            Rechercher des recettes
-          </button>
-        </div>
-      )}
+            <p className="text-red-800 text-sm font-medium">{error}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-10 h-10 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600 font-medium text-sm">Chargement...</p>
+          </div>
+        ) : favorites.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-max">
+            {favorites.map((recipe) => (
+              <div key={recipe.id} className="h-full">
+                <RecipeCard
+                  recipe={recipe}
+                  onFavoriteToggle={handleFavoriteToggle}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Icon
+                icon="mdi:heart-outline"
+                className="w-8 h-8 text-gray-400"
+              />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Aucune recette favorite
+            </h3>
+            <p className="text-gray-600 text-sm mb-6">
+              Vos recettes favorites apparaîtront ici
+            </p>
+            <button
+              onClick={() => navigate("/search")}
+              className="inline-flex items-center px-4 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium text-sm border border-gray-200 hover:border-gray-300"
+            >
+              <Icon icon="mdi:magnify" className="w-4 h-4 mr-2" />
+              Rechercher des recettes
+            </button>
+          </div>
+        )}
+      </div>
     </Layout>
   );
 };

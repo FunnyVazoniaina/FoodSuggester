@@ -1,8 +1,8 @@
-import { useContext, useState } from 'react';
-import type { ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
-import { Icon } from '@iconify/react';
+import { useContext, useState } from "react";
+import type { ReactNode } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
+import { Icon } from "@iconify/react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,6 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
@@ -24,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (isAuthenticated) {
       setShowLogoutConfirm(true);
     } else {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -33,46 +34,62 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const menuItems = [
-    { text: 'Accueil', icon: 'mdi:home', path: '/home' },
-    { text: 'Recherche', icon: 'mdi:silverware-fork-knife', path: '/search' },
-    { text: 'Historique', icon: 'mdi:history', path: '/history' },
-    { text: 'Favoris', icon: 'mdi:heart', path: '/favorites' },
-    { text: 'Profil', icon: 'mdi:account-circle', path: '/profile' },
+    { text: "Accueil", icon: "mdi:home", path: "/home" },
+    { text: "Recherche", icon: "mdi:silverware-fork-knife", path: "/search" },
+    { text: "Historique", icon: "mdi:history", path: "/history" },
+    { text: "Favoris", icon: "mdi:heart", path: "/favorites" },
+    { text: "Profil", icon: "mdi:account-circle", path: "/profile" },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-orange-50 font-inter">
+    <div className="flex flex-col min-h-screen bg-gray-50 font-inter">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-amber-800 shadow z-50">
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200/50 shadow-sm z-50">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center">
-            <button onClick={() => setDrawerOpen(!drawerOpen)} className="p-2 text-white hover:bg-white/20 rounded-lg mr-3">
+            <button
+              onClick={() => setDrawerOpen(!drawerOpen)}
+              className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg mr-3 transition-colors"
+            >
               <Icon icon="mdi:menu" className="w-6 h-6" />
             </button>
-            <h1 className="text-xl font-semibold text-white">Food Suggester</h1>
+            <h1 className="text-lg font-semibold text-gray-900">
+              Food Suggester
+            </h1>
           </div>
           <button
             onClick={handleLogoutClick}
-            className="flex items-center gap-2 px-4 py-2 text-white hover:bg-white/20 rounded-full transition"
+            className="flex items-center gap-2 px-3.5 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
           >
-            <Icon icon={isAuthenticated ? 'mdi:logout' : 'mdi:login'} className="w-5 h-5" />
-            {isAuthenticated ? 'Déconnexion' : 'Connexion'}
+            <Icon
+              icon={isAuthenticated ? "mdi:logout" : "mdi:login"}
+              className="w-5 h-5"
+            />
+            {isAuthenticated ? "Déconnexion" : "Connexion"}
           </button>
         </div>
       </header>
 
-      {/* Drawer */}
+      {/* Drawer Mobile */}
       {drawerOpen && (
         <>
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setDrawerOpen(false)} />
-          <aside className="fixed top-0 left-0 h-full w-72 bg-orange-50 shadow-xl z-50">
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="fixed top-0 left-0 h-full w-72 bg-white shadow-xl z-50 border-r border-gray-200/50">
             <div className="p-4">
               <div className="flex items-center justify-center mb-6 pt-4">
-                <Icon icon="mdi:silverware" className="w-6 h-6 text-orange-600 mr-2" />
-                <h2 className="text-lg font-semibold text-amber-900">Food Suggester</h2>
+                <Icon
+                  icon="mdi:silverware"
+                  className="w-6 h-6 text-gray-900 mr-2"
+                />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Food Suggester
+                </h2>
               </div>
-              <hr className="border-gray-300 mb-4" />
-              <nav className="space-y-2">
+              <hr className="border-gray-200 mb-4" />
+              <nav className="space-y-1">
                 {menuItems.map(({ text, icon, path }) => {
                   const isActive = location.pathname === path;
                   return (
@@ -82,13 +99,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         navigate(path);
                         setDrawerOpen(false);
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${
                         isActive
-                          ? 'bg-orange-600/10 text-orange-600 font-semibold'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? "bg-gray-100 text-gray-900"
+                          : "text-gray-600 hover:bg-gray-50"
                       }`}
                     >
-                      <Icon icon={icon} className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-gray-600'}`} />
+                      <Icon
+                        icon={icon}
+                        className={`w-5 h-5 ${isActive ? "text-gray-900" : "text-gray-500"}`}
+                      />
                       {text}
                     </button>
                   );
@@ -96,13 +116,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </nav>
               {isAuthenticated && (
                 <>
-                  <hr className="border-gray-300 my-4" />
+                  <hr className="border-gray-200 my-4" />
                   <button
                     onClick={() => {
                       setShowLogoutConfirm(true);
                       setDrawerOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium"
                   >
                     <Icon icon="mdi:logout" className="w-5 h-5" />
                     Déconnexion
@@ -114,32 +134,84 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </>
       )}
 
+      {/* Sidebar Desktop */}
+      <aside
+        className="hidden md:flex md:fixed md:left-0 md:top-16 md:h-[calc(100vh-64px)] md:flex-col md:bg-white md:border-r md:border-gray-200/50 md:z-40 transition-all duration-300 overflow-hidden"
+        style={{ width: sidebarExpanded ? "256px" : "80px" }}
+      >
+        <div className="flex-1 p-4">
+          <nav className="space-y-2">
+            {menuItems.map(({ text, icon, path }) => {
+              const isActive = location.pathname === path;
+              return (
+                <button
+                  key={text}
+                  onClick={() => navigate(path)}
+                  title={!sidebarExpanded ? text : undefined}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium whitespace-nowrap ${
+                    isActive
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <Icon
+                    icon={icon}
+                    className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-gray-900" : "text-gray-500"}`}
+                  />
+                  {sidebarExpanded && <span className="min-w-fit">{text}</span>}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={() => setSidebarExpanded(!sidebarExpanded)}
+            className="w-full flex items-center justify-center p-2.5 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            title={sidebarExpanded ? "Réduire" : "Développer"}
+          >
+            <Icon
+              icon={sidebarExpanded ? "mdi:chevron-left" : "mdi:chevron-right"}
+              className="w-5 h-5"
+            />
+          </button>
+        </div>
+      </aside>
+
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4 w-full">
-            <div className="flex items-center mb-4">
-              <Icon icon="mdi:logout" className="w-6 h-6 text-red-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">Confirmer la déconnexion</h3>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60">
+          <div className="bg-white rounded-xl shadow-2xl p-7 max-w-sm mx-4 w-full border border-gray-200/50 animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="mb-4">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mb-3">
+                <Icon icon="mdi:logout" className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Confirmer la déconnexion
+              </h3>
             </div>
-            
-            <p className="text-gray-600 mb-6">
-              Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à votre compte.
+
+            {/* Body */}
+            <p className="text-gray-600 text-sm leading-relaxed mb-7">
+              Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous
+              reconnecter pour accéder à votre compte.
             </p>
-            
-            <div className="flex justify-end gap-3">
+
+            {/* Actions */}
+            <div className="flex gap-3">
               <button
                 onClick={handleCancelLogout}
-                className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium text-sm"
               >
                 Annuler
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-2"
+                className="flex-1 px-4 py-2.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
               >
                 <Icon icon="mdi:logout" className="w-4 h-4" />
-                Se déconnecter
+                Déconnexion
               </button>
             </div>
           </div>
@@ -147,13 +219,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
 
       {/* Main */}
-      <main className="flex-1 pt-20 px-4 sm:px-8 py-8 max-w-6xl mx-auto w-full">
-        {children}
+      <main
+        className="flex-1 pt-20 px-4 sm:px-8 py-8 w-full md:flex md:justify-center transition-all duration-300"
+        style={{
+          marginLeft:
+            typeof window !== "undefined" && window.innerWidth >= 768
+              ? sidebarExpanded
+                ? "256px"
+                : "80px"
+              : 0,
+        }}
+      >
+        <div className="w-full max-w-6xl">{children}</div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-orange-100 text-gray-800 py-6 mt-auto">
-        <div className="max-w-sm mx-auto text-center text-sm">
+      <footer className="bg-white border-t border-gray-200/50 text-gray-600 py-5 mt-auto flex justify-center">
+        <div className="max-w-6xl text-center text-xs">
           © {new Date().getFullYear()} Food Suggester - FunnyVazoniaina
         </div>
       </footer>

@@ -62,7 +62,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Chat with AI button */}
             <button
               onClick={() => navigate("/ai-chat")}
-              className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-3 py-2 md:px-4 md:py-2 transition-all text-xs md:text-sm font-medium flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md"
+              className="relative overflow-hidden text-white rounded-lg px-3 py-2 md:px-4 md:py-2 transition-all text-xs md:text-sm font-medium flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md hover:scale-105"
+              style={{
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              }}
               title="Discuter avec l'IA"
             >
               <Icon

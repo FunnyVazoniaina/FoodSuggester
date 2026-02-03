@@ -43,7 +43,6 @@ export const DailySuggestionsCard = () => {
       {/* Aliment Vedette */}
       <div className="bg-white border border-[#ede5df] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-start gap-3">
-          <div className="text-2xl leading-none flex-shrink-0">🥘</div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[0.68rem] font-bold uppercase tracking-widest text-[#2d6a4f] bg-[#e6f4ea] rounded-full px-2 py-0.5">
@@ -63,7 +62,6 @@ export const DailySuggestionsCard = () => {
       {/* Conseil du Jour */}
       <div className="bg-white border border-[#ede5df] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-start gap-3">
-          <div className="text-2xl leading-none flex-shrink-0">💡</div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[0.68rem] font-bold uppercase tracking-widest text-[#92400e] bg-[#fef3cd] rounded-full px-2 py-0.5">
@@ -87,7 +85,6 @@ export const DailySuggestionsCard = () => {
         <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-[#E8472C] opacity-[0.06]" />
 
         <div className="relative z-10 flex items-start gap-3">
-          <div className="text-2xl leading-none flex-shrink-0">✨</div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[0.68rem] font-bold uppercase tracking-widest text-[#c2410c] bg-[#ffe0cc] rounded-full px-2 py-0.5">

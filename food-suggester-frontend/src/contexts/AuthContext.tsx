@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  axios.defaults.baseURL = "http://localhost:5000";
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
   // Configuration axios avec token
   const setupAxiosInterceptors = (token: string) => {

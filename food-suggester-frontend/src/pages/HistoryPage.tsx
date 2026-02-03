@@ -71,7 +71,7 @@ const HistoryPage: React.FC = () => {
     return format(date, "dd MMM yyyy 'à' HH:mm", { locale: fr });
   };
 
-  const handleTouchStart = (e: React.TouchEvent, itemId: number) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
   };
 
@@ -179,7 +179,7 @@ const HistoryPage: React.FC = () => {
                   key={item.id}
                   className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden fade-in"
                   style={{ animationDelay: `${idx * 0.05}s` }}
-                  onTouchStart={(e) => handleTouchStart(e, item.id)}
+                  onTouchStart={(e) => handleTouchStart(e)}
                   onTouchEnd={(e) => handleTouchEnd(e, item.id)}
                 >
                   {/* Swipe background (delete button) */}

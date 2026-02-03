@@ -18,6 +18,8 @@ const HistoryPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [swipedItemId, setSwipedItemId] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,6 +69,23 @@ const HistoryPage: React.FC = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, "dd MMM yyyy 'à' HH:mm", { locale: fr });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent, itemId: number) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent, itemId: number) => {
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+
+    if (diff > 50) {
+      // Swipe left
+      setSwipedItemId(itemId);
+    } else if (diff < -50) {
+      // Swipe right
+      setSwipedItemId(null);
+    }
   };
 
   return (
@@ -158,11 +177,30 @@ const HistoryPage: React.FC = () => {
               {history.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="group relative bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all duration-200 fade-in cursor-pointer"
+                  className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden fade-in"
                   style={{ animationDelay: `${idx * 0.05}s` }}
-                  onClick={() => handleSearchWithIngredients(item.ingredients)}
+                  onTouchStart={(e) => handleTouchStart(e, item.id)}
+                  onTouchEnd={(e) => handleTouchEnd(e, item.id)}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  {/* Swipe background (delete button) */}
+                  <div className="absolute inset-y-0 right-0 bg-red-500 flex items-center justify-end pr-4 md:hidden">
+                    <Icon icon="mdi:trash-can" className="w-6 h-6 text-white" />
+                  </div>
+
+                  {/* Content */}
+                  <div
+                    className={`relative bg-white p-4 hover:border-gray-300 hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer`}
+                    onClick={() =>
+                      handleSearchWithIngredients(item.ingredients)
+                    }
+                    style={{
+                      transform:
+                        swipedItemId === item.id
+                          ? "translateX(-80px)"
+                          : "translateX(0)",
+                      transition: "transform 0.2s ease-out",
+                    }}
+                  >
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2 break-words">
                         {item.ingredients}
@@ -178,20 +216,19 @@ const HistoryPage: React.FC = () => {
                           e.stopPropagation();
                           handleSearchWithIngredients(item.ingredients);
                         }}
-                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors hidden sm:block"
                         title="Rechercher"
-                        aria-label="Rechercher"
                       >
                         <Icon icon="mdi:magnify" className="w-4 h-4" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          setSwipedItemId(null);
                           setConfirmDelete(item.id);
                         }}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors hidden sm:block"
                         title="Supprimer"
-                        aria-label="Supprimer"
                       >
                         <Icon
                           icon="mdi:trash-can-outline"
@@ -200,6 +237,19 @@ const HistoryPage: React.FC = () => {
                       </button>
                     </div>
                   </div>
+
+                  {/* Mobile delete button */}
+                  {swipedItemId === item.id && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setConfirmDelete(item.id);
+                      }}
+                      className="absolute inset-y-0 right-0 bg-red-500 text-white px-4 flex items-center justify-center md:hidden z-10"
+                    >
+                      <Icon icon="mdi:trash-can" className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

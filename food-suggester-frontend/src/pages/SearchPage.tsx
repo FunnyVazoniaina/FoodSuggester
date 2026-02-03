@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import RecipeCard from "../components/RecipeCard";
 import { recipeService } from "../services/api";
@@ -17,6 +18,7 @@ const quickSuggestions = [
 ];
 
 const SearchPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [ingredient, setIngredient] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -24,7 +26,47 @@ const SearchPage: React.FC = () => {
   const [error, setError] = useState("");
   const [, setFavorites] = useState<number[]>([]);
 
+  /* ── Traiter les paramètres d'URL au montage/changement ── */
+  useEffect(() => {
+    const urlIngredients = searchParams.get("ingredients");
+    if (urlIngredients) {
+      // Séparer les ingrédients par virgule et ajouter à l'état
+      const ingredientsList = urlIngredients
+        .split(",")
+        .map((ing) => ing.trim().toLowerCase())
+        .filter((ing) => ing.length > 0);
+
+      if (ingredientsList.length > 0) {
+        setIngredients(ingredientsList);
+        // Lancer la recherche automatiquement
+        performSearch(ingredientsList);
+      }
+    }
+  }, [searchParams]);
+
   /* ── handlers ── */
+  const performSearch = async (ingredientsList: string[]) => {
+    if (!ingredientsList.length)
+      return setError("Ajoutez au moins un ingrédient");
+    setLoading(true);
+    setError("");
+    try {
+      const data = await recipeService.suggestRecipes(
+        ingredientsList.join(","),
+      );
+      const favData = await recipeService.getFavorites();
+      const favIds = favData.map((f: any) => f.id);
+      setFavorites(favIds);
+      setRecipes(
+        data.map((r: any) => ({ ...r, isFavorite: favIds.includes(r.id) })),
+      );
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de la recherche");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAdd = () => {
     const val = ingredient.trim().toLowerCase();
     if (val && !ingredients.includes(val)) {
@@ -37,22 +79,7 @@ const SearchPage: React.FC = () => {
     setIngredients((prev) => prev.filter((i) => i !== ing));
 
   const handleSearch = async () => {
-    if (!ingredients.length) return setError("Ajoutez au moins un ingrédient");
-    setLoading(true);
-    setError("");
-    try {
-      const data = await recipeService.suggestRecipes(ingredients.join(","));
-      const favData = await recipeService.getFavorites();
-      const favIds = favData.map((f: any) => f.id);
-      setFavorites(favIds);
-      setRecipes(
-        data.map((r: any) => ({ ...r, isFavorite: favIds.includes(r.id) })),
-      );
-    } catch (err: any) {
-      setError(err.message || "Erreur lors de la recherche");
-    } finally {
-      setLoading(false);
-    }
+    performSearch(ingredients);
   };
 
   const handleFavoriteToggle = async () => {

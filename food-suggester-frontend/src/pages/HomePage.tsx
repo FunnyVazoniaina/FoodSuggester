@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import Layout from "../components/Layout";
+import { DailySuggestionsCard } from "../components/DailySuggestionsCard";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,41 +25,6 @@ const HomePage: React.FC = () => {
       description: "Suivez la recette et profitez de votre délicieux repas !",
     },
   ];
-
-  /* ── données fictives – panel gauche ── */
-  const benefitsItem = {
-    emoji: "🥑",
-    name: "Avocat",
-    points: [
-      "Riches en graisses mono-insaturées — cardioprotecteur.",
-      "Excellente source de fibres, vitamines K, E et C.",
-      "Les antioxydants lutéine & zéaxanthine protègent les yeux.",
-    ],
-  };
-
-  const tips = [
-    {
-      icon: "mdi:clock-outline",
-      text: "Préparez vos ingrédients en avance (mise en place) pour cuisiner plus vite.",
-    },
-    {
-      icon: "mdi:water-circle",
-      text: "Boire un verre d'eau avant chaque repas aide la digestion.",
-    },
-    {
-      icon: "mdi:colorize",
-      text: "Plus votre assiette est colorée, plus elle est riche en nutriments.",
-    },
-  ];
-
-  const suggestionDuJour = {
-    title: "Salade Niçoise Express",
-    time: "15 min",
-    calories: "380 kcal",
-    description:
-      "Une version rapide & fraîche avec du thon, des œufs durs, haricots verts et une vinaigrette au miel maison.",
-    ingredients: ["Thon", "Œufs", "Haricots verts", "Tomates", "Olives"],
-  };
 
   /* ─────────────────────────────────────────── */
   return (
@@ -219,141 +185,9 @@ const HomePage: React.FC = () => {
 
         {/* ─── DESKTOP & TABLET : grille [panel | hero] ─── */}
         <div className="hidden md:grid md:grid-cols-[5fr_7fr] gap-6 items-center relative z-10">
-          {/* ── PANEL GAUCHE ── */}
+          {/* ── PANEL GAUCHE (SUGGESTIONS DYNAMIQUES) ── */}
           <div className="flex flex-col gap-4">
-            {/* 1 — Bénéfices d'un aliment */}
-            <div className="pcard panel-fade-up panel-delay-1 bg-white border border-[#ede5df] rounded-2xl p-5">
-              {/* header row */}
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl leading-none">
-                  {benefitsItem.emoji}
-                </span>
-                <div className="flex flex-col">
-                  <span className="text-[0.68rem] font-bold uppercase tracking-widest text-[#2d6a4f] bg-[#e6f4ea] rounded-full px-2 py-0.5 w-fit">
-                    Aliment vedette
-                  </span>
-                  <span className="text-sm font-bold text-[#4A4238] font-poppins mt-0.5">
-                    {benefitsItem.name}
-                  </span>
-                </div>
-              </div>
-              {/* points */}
-              <div className="flex flex-col gap-2">
-                {benefitsItem.points.map((p, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-md bg-[#e6f4ea] flex items-center justify-center">
-                      <Icon
-                        icon="mdi:check"
-                        width="11"
-                        height="11"
-                        className="text-[#2d6a4f]"
-                      />
-                    </span>
-                    <p className="text-[0.78rem] text-[#6B5B4E] font-poppins leading-snug">
-                      {p}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 2 — Conseils alimentaires */}
-            <div className="pcard panel-fade-up panel-delay-2 bg-white border border-[#ede5df] rounded-2xl p-5">
-              {/* header */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-[#fef3cd] flex items-center justify-center">
-                  <Icon
-                    icon="mdi:lightbulb-on"
-                    width="14"
-                    height="14"
-                    className="text-[#d97706]"
-                  />
-                </div>
-                <span className="text-[0.68rem] font-bold uppercase tracking-widest text-[#92400e] bg-[#fef3cd] rounded-full px-2 py-0.5">
-                  Conseils
-                </span>
-              </div>
-              {/* tips */}
-              <div className="flex flex-col gap-2.5">
-                {tips.map((t, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <div className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-lg bg-[#fff7ed] flex items-center justify-center">
-                      <Icon
-                        icon={t.icon}
-                        width="12"
-                        height="12"
-                        className="text-[#d97706]"
-                      />
-                    </div>
-                    <p className="text-[0.78rem] text-[#6B5B4E] font-poppins leading-snug">
-                      {t.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 3 — Suggestion du jour (card mise en avant) */}
-            <div
-              className="scard panel-fade-up panel-delay-3 rounded-2xl p-5 relative overflow-hidden"
-              style={{
-                background: "linear-gradient(135deg,#fff5ee 0%,#ffe8d6 100%)",
-                border: "1px solid #f5d5c0",
-              }}
-            >
-              {/* accent circle décor */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-[#FF6B35] opacity-[0.08]" />
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-[#E8472C] opacity-[0.06]" />
-
-              {/* header */}
-              <div className="relative z-10 flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-[#FF6B35] flex items-center justify-center">
-                  <Icon
-                    icon="mdi:star"
-                    width="14"
-                    height="14"
-                    className="text-white"
-                  />
-                </div>
-                <span className="text-[0.68rem] font-bold uppercase tracking-widest text-[#c2410c] bg-[#ffe0cc] rounded-full px-2 py-0.5">
-                  Suggestion du jour
-                </span>
-              </div>
-
-              {/* titre recette */}
-              <h4 className="relative z-10 text-sm font-bold text-[#4A4238] font-poppins mb-1">
-                {suggestionDuJour.title}
-              </h4>
-
-              {/* meta pills */}
-              <div className="relative z-10 flex flex-wrap gap-1.5 mb-2">
-                <span className="inline-flex items-center gap-1 text-[0.7rem] font-semibold text-[#A0522D] bg-white/60 rounded-full px-2 py-0.5">
-                  <Icon icon="mdi:clock-outline" width="11" height="11" />{" "}
-                  {suggestionDuJour.time}
-                </span>
-                <span className="inline-flex items-center gap-1 text-[0.7rem] font-semibold text-[#A0522D] bg-white/60 rounded-full px-2 py-0.5">
-                  <Icon icon="mdi:fire" width="11" height="11" />{" "}
-                  {suggestionDuJour.calories}
-                </span>
-              </div>
-
-              {/* description */}
-              <p className="relative z-10 text-[0.76rem] text-[#6B5B4E] font-poppins leading-snug mb-2.5">
-                {suggestionDuJour.description}
-              </p>
-
-              {/* ingrédients */}
-              <div className="relative z-10 flex flex-wrap gap-1.5">
-                {suggestionDuJour.ingredients.map((ing, i) => (
-                  <span
-                    key={i}
-                    className="text-[0.68rem] font-semibold text-[#7c5a3c] bg-white/70 border border-[#f0d5c0] rounded-full px-2 py-0.5"
-                  >
-                    {ing}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <DailySuggestionsCard />
           </div>
 
           {/* ── HERO DROITE ── */}
@@ -453,131 +287,13 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* label + scroll horizontal des 3 cards */}
+          {/* label + suggestions dynamiques */}
           <div className="px-4">
             <p className="text-[0.72rem] font-bold uppercase tracking-widest text-[#9a8578] mb-2.5 px-0.5">
-              Découvrez aussi →
+              Suggestions du jour →
             </p>
-            <div className="mobile-scroll">
-              {/* card 1 — Bénéfices */}
-              <div className="pcard panel-fade-up panel-delay-1 bg-white border border-[#ede5df] rounded-2xl p-4">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <span className="text-xl leading-none">
-                    {benefitsItem.emoji}
-                  </span>
-                  <div>
-                    <span className="text-[0.62rem] font-bold uppercase tracking-widest text-[#2d6a4f] bg-[#e6f4ea] rounded-full px-2 py-0.5 inline-block">
-                      Aliment vedette
-                    </span>
-                    <p className="text-xs font-bold text-[#4A4238] font-poppins mt-0.5">
-                      {benefitsItem.name}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  {benefitsItem.points.map((p, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-md bg-[#e6f4ea] flex items-center justify-center">
-                        <Icon
-                          icon="mdi:check"
-                          width="10"
-                          height="10"
-                          className="text-[#2d6a4f]"
-                        />
-                      </span>
-                      <p className="text-[0.73rem] text-[#6B5B4E] font-poppins leading-snug">
-                        {p}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* card 2 — Conseils */}
-              <div className="pcard panel-fade-up panel-delay-2 bg-white border border-[#ede5df] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-5 h-5 rounded-lg bg-[#fef3cd] flex items-center justify-center">
-                    <Icon
-                      icon="mdi:lightbulb-on"
-                      width="13"
-                      height="13"
-                      className="text-[#d97706]"
-                    />
-                  </div>
-                  <span className="text-[0.62rem] font-bold uppercase tracking-widest text-[#92400e] bg-[#fef3cd] rounded-full px-2 py-0.5">
-                    Conseils
-                  </span>
-                </div>
-                <div className="flex flex-col gap-2.5">
-                  {tips.map((t, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <div className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-lg bg-[#fff7ed] flex items-center justify-center">
-                        <Icon
-                          icon={t.icon}
-                          width="11"
-                          height="11"
-                          className="text-[#d97706]"
-                        />
-                      </div>
-                      <p className="text-[0.73rem] text-[#6B5B4E] font-poppins leading-snug">
-                        {t.text}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* card 3 — Suggestion du jour */}
-              <div
-                className="scard panel-fade-up panel-delay-3 rounded-2xl p-4 relative overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg,#fff5ee 0%,#ffe8d6 100%)",
-                  border: "1px solid #f5d5c0",
-                }}
-              >
-                <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#FF6B35] opacity-[0.08]" />
-                <div className="absolute -bottom-3 -left-3 w-14 h-14 rounded-full bg-[#E8472C] opacity-[0.06]" />
-
-                <div className="relative z-10 flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 rounded-lg bg-[#FF6B35] flex items-center justify-center">
-                    <Icon
-                      icon="mdi:star"
-                      width="13"
-                      height="13"
-                      className="text-white"
-                    />
-                  </div>
-                  <span className="text-[0.62rem] font-bold uppercase tracking-widest text-[#c2410c] bg-[#ffe0cc] rounded-full px-2 py-0.5">
-                    Suggestion du jour
-                  </span>
-                </div>
-                <h4 className="relative z-10 text-xs font-bold text-[#4A4238] font-poppins mb-1">
-                  {suggestionDuJour.title}
-                </h4>
-                <div className="relative z-10 flex flex-wrap gap-1 mb-2">
-                  <span className="inline-flex items-center gap-1 text-[0.65rem] font-semibold text-[#A0522D] bg-white/60 rounded-full px-1.5 py-0.5">
-                    <Icon icon="mdi:clock-outline" width="10" height="10" />{" "}
-                    {suggestionDuJour.time}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[0.65rem] font-semibold text-[#A0522D] bg-white/60 rounded-full px-1.5 py-0.5">
-                    <Icon icon="mdi:fire" width="10" height="10" />{" "}
-                    {suggestionDuJour.calories}
-                  </span>
-                </div>
-                <p className="relative z-10 text-[0.72rem] text-[#6B5B4E] font-poppins leading-snug mb-2">
-                  {suggestionDuJour.description}
-                </p>
-                <div className="relative z-10 flex flex-wrap gap-1">
-                  {suggestionDuJour.ingredients.map((ing, i) => (
-                    <span
-                      key={i}
-                      className="text-[0.63rem] font-semibold text-[#7c5a3c] bg-white/70 border border-[#f0d5c0] rounded-full px-1.5 py-0.5"
-                    >
-                      {ing}
-                    </span>
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-3">
+              <DailySuggestionsCard />
             </div>
           </div>
         </div>

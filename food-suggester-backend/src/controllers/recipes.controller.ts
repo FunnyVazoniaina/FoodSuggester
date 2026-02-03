@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import {
   getRecipesFromSpoonacular,
   getRecipesWithDetails,
-} from "../services/spoonacular.service";
+} from "../services/spoonacular.service.js";
 import {
   getDailyRecipe,
   getRecipeByTag,
-} from "../services/dailyRecipe.service";
+} from "../services/dailyRecipe.service.js";
 import { db } from "../config/db";
 
 export const suggestRecipes = async (req: Request, res: Response) => {
@@ -124,17 +124,27 @@ export const getDailyRecipeOfDay = async (
   res: Response,
 ): Promise<void> => {
   try {
+    console.log("📍 getDailyRecipeOfDay called");
     const recipe = await getDailyRecipe();
 
     if (!recipe) {
+      console.warn("⚠️ No recipe available for today");
       res.status(404).json({ message: "No recipe available for today" });
       return;
     }
 
+    console.log("✅ Daily recipe retrieved:", recipe.title);
     res.json(recipe);
-  } catch (error) {
-    console.error("Error getting daily recipe:", error);
-    res.status(500).json({ message: "Error getting daily recipe" });
+  } catch (error: any) {
+    console.error("❌ Error getting daily recipe:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+    });
+    res.status(500).json({
+      message: "Error getting daily recipe",
+      error: error.message,
+    });
   }
 };
 
@@ -150,16 +160,26 @@ export const getRecipeOfDayByTag = async (
       return;
     }
 
+    console.log("📍 getRecipeOfDayByTag called with tag:", tag);
     const recipe = await getRecipeByTag(tag);
 
     if (!recipe) {
+      console.warn("⚠️ No recipe available for tag:", tag);
       res.status(404).json({ message: `No recipe available for tag: ${tag}` });
       return;
     }
 
+    console.log("✅ Recipe by tag retrieved:", recipe.title);
     res.json(recipe);
-  } catch (error) {
-    console.error("Error getting recipe by tag:", error);
-    res.status(500).json({ message: "Error getting recipe by tag" });
+  } catch (error: any) {
+    console.error("❌ Error getting recipe by tag:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+    });
+    res.status(500).json({
+      message: "Error getting recipe by tag",
+      error: error.message,
+    });
   }
 };

@@ -1,5 +1,8 @@
 import axios from "axios";
-require("dotenv").config();
+import dotenv from "dotenv";
+
+dotenv.config();
+// Service for daily recipe suggestions
 
 const apiKey = process.env.SPOONACULAR_API_KEY;
 const baseURL = process.env.SPOONACULAR_URL_BASE;

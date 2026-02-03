@@ -51,6 +51,10 @@ const LandingPage = () => {
     fetchDailyRecipe();
   }, []);
 
+  // Placeholder SVG as base64 data URL
+  const placeholderImage =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect fill='%23F5E6D3' width='500' height='500'/%3E%3Ctext x='50%25' y='50%25' font-size='24' font-weight='bold' fill='%23A0522D' text-anchor='middle' dy='.3em'%3ERecette indisponible%3C/text%3E%3C/svg%3E";
+
   const features = [
     {
       icon: "mdi:chef-hat",
@@ -229,7 +233,9 @@ const LandingPage = () => {
                           className="aspect-square w-full object-cover rounded-2xl shadow-lg transition-transform duration-500 hover:scale-105"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
-                              "https://via.placeholder.com/500?text=Recipe+Image";
+                              placeholderImage;
+                            (e.target as HTMLImageElement).className =
+                              "aspect-square w-full object-contain rounded-2xl shadow-lg bg-[#F5E6D3] flex items-center justify-center";
                           }}
                           loading="lazy"
                         />

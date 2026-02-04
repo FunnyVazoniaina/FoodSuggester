@@ -44,6 +44,14 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
   try {
     const today = new Date().toDateString();
 
+    // Log API configuration
+    console.log("🔐 API Configuration:", {
+      hasApiKey: !!apiKey,
+      apiKeyLength: apiKey?.length || 0,
+      baseURL,
+      hasBaseURL: !!baseURL,
+    });
+
     // Return cached recipe if it's the same day
     if (cachedRecipe && cacheDate === today) {
       console.log("✅ Returning cached recipe for", today);
@@ -58,18 +66,39 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
 
     console.log("🔄 Fetching random recipe from Spoonacular API...");
 
-    // Fetch random recipe from Spoonacular
-    const response = await axios.get(`${baseURL}/recipes/random`, {
-      params: {
-        number: 1,
-        apiKey,
-        tags: "vegetarian,breakfast,dessert,dinner,lunch,snack",
-      },
-      timeout: 8000,
+    // Try without tags first (some API tiers might have restrictions)
+    let response;
+    try {
+      response = await axios.get(`${baseURL}/recipes/random`, {
+        params: {
+          number: 1,
+          apiKey,
+          tags: "vegetarian,breakfast,dessert,dinner,lunch,snack",
+        },
+        timeout: 8000,
+      });
+    } catch (error: any) {
+      console.warn("⚠️ Request with tags failed, trying without tags");
+      // Fallback to request without tags
+      response = await axios.get(`${baseURL}/recipes/random`, {
+        params: {
+          number: 1,
+          apiKey,
+        },
+        timeout: 8000,
+      });
+    }
+
+    console.log("📦 Spoonacular API Response:", {
+      status: response.status,
+      hasRecipes: !!response.data.recipes,
+      recipesLength: response.data.recipes?.length || 0,
+      dataKeys: Object.keys(response.data || {}),
     });
 
     if (!response.data.recipes || response.data.recipes.length === 0) {
       console.warn("⚠️ No recipes returned from Spoonacular API");
+      console.warn("📋 Full response data:", JSON.stringify(response.data, null, 2));
       return null;
     }
 

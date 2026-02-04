@@ -46,8 +46,17 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
 
     // Return cached recipe if it's the same day
     if (cachedRecipe && cacheDate === today) {
+      console.log("✅ Returning cached recipe for", today);
       return cachedRecipe;
     }
+
+    // Validate API key
+    if (!apiKey) {
+      console.error("❌ SPOONACULAR_API_KEY is not configured");
+      return null;
+    }
+
+    console.log("🔄 Fetching random recipe from Spoonacular API...");
 
     // Fetch random recipe from Spoonacular
     const response = await axios.get(`${baseURL}/recipes/random`, {
@@ -60,10 +69,12 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
     });
 
     if (!response.data.recipes || response.data.recipes.length === 0) {
+      console.warn("⚠️ No recipes returned from Spoonacular API");
       return null;
     }
 
     const recipe = response.data.recipes[0];
+    console.log("✅ Recipe fetched:", recipe.title);
 
     // Fetch detailed nutrition information
     const detailedResponse = await axios.get(
@@ -127,10 +138,17 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
     // Cache the recipe
     cachedRecipe = dailyRecipe;
     cacheDate = today;
+    console.log("💾 Recipe cached for", today);
 
     return dailyRecipe;
   } catch (error: any) {
-    console.error("Error fetching daily recipe:", error.message);
+    console.error("❌ Error fetching daily recipe:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+    });
     return null;
   }
 };

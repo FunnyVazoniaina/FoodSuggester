@@ -90,11 +90,20 @@ export const recipeService = {
           "Content-Type": "application/json",
         },
       });
-      const response = await publicApi.get("/recipes/daily");
-      return response.data;
+
+      // Add timeout and error handling
+      const response = await publicApi.get("/recipes/daily", {
+        timeout: 5000,
+      });
+
+      if (response.data && response.status === 200) {
+        return response.data;
+      }
+      return null;
     } catch (error) {
-      console.error("Error fetching daily recipe:", error);
-      throw error;
+      // Silently handle error - daily recipe is optional
+      console.warn("Daily recipe unavailable:", error);
+      return null;
     }
   },
   getRecipeByTag: async (tag: string) => {

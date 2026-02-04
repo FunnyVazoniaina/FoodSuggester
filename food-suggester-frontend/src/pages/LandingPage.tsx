@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { recipeService } from "../services/api";
+import Footer from "../components/Footer";
 
 interface DailyRecipe {
   id: number;
@@ -626,6 +627,7 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+      <Footer />
     </div>
   );
 };

@@ -58,11 +58,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </h1>
           </div>
           {/* Right side buttons */}
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
             {/* Chat with AI button */}
             <button
               onClick={() => navigate("/ai-chat")}
-              className="relative overflow-hidden text-white rounded-lg px-3 py-2 md:px-4 md:py-2 transition-all text-xs md:text-sm font-medium flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md hover:scale-105"
+              className="relative overflow-hidden text-white rounded-lg px-2.5 py-2 sm:px-3 md:px-4 transition-all text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 md:gap-2 shadow-sm hover:shadow-md hover:scale-105 whitespace-nowrap"
               style={{
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               }}
@@ -70,19 +70,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Icon
                 icon="mdi:robot-excited-outline"
-                className="w-4 h-4 md:w-5 md:h-5"
+                className="w-4 h-4 flex-shrink-0"
               />
-              <span className="hidden sm:inline">IA</span>
+              <span className="hidden xs:inline sm:hidden md:inline">IA</span>
             </button>
 
             {/* Desktop logout button */}
             {isAuthenticated && (
               <button
                 onClick={handleLogoutClick}
-                className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
                 title="Déconnexion"
               >
-                <Icon icon="mdi:logout" className="w-4 h-4" />
+                <Icon icon="mdi:logout" className="w-4 h-4 flex-shrink-0" />
                 <span>Déconnexion</span>
               </button>
             )}
@@ -242,13 +242,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="flex-1 pt-20 px-4 sm:px-8 py-8 w-full transition-all duration-300 flex justify-center">
         <div className="w-full max-w-6xl">{children}</div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200/50 text-gray-600 py-5 mt-auto flex justify-center">
-        <div className="max-w-6xl text-center text-xs">
-          © {new Date().getFullYear()} Food Suggester - FunnyVazoniaina
-        </div>
-      </footer>
     </div>
   );
 };

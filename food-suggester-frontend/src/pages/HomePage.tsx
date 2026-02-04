@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import Footer from "../components/Footer";
+import FloatingChatButton from "../components/FloatingChatButton";
 import { DailySuggestionsCard } from "../components/DailySuggestionsCard";
 
 const HomePage: React.FC = () => {
@@ -283,6 +284,7 @@ const HomePage: React.FC = () => {
         </div>
       </Layout>
       <Footer />
+      <FloatingChatButton />
     </>
   );
 };

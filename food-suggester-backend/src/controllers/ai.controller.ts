@@ -1,21 +1,51 @@
 import { Request, Response } from "express";
 import { Groq } from "groq-sdk";
 
-// Initialize Groq client
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+// Initialize Groq client with validation
+let groq: Groq | null = null;
+
+const initializeGroq = () => {
+  if (!groq) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "GROQ_API_KEY environment variable is not set. Please configure it in your environment.",
+      );
+    }
+    groq = new Groq({ apiKey });
+  }
+  return groq;
+};
 
 /**
  * System prompt for the AI chef assistant
  * Instructs the AI to stay focused on culinary topics while remaining friendly
  */
-const SYSTEM_PROMPT = `Tu es un expert en cuisine, nutrition et recettes saines. 
-Réponds uniquement dans ce domaine. Sois toujours amical et courtois.
-Si quelqu'un te pose une question hors de ces sujets, réponds poliment:
-"Je suis spécialisé en cuisine et nutrition. Je peux t'aider sur les recettes, les régimes, les valeurs nutritionnelles et les conseils culinaires!"
+const SYSTEM_PROMPT = `
+Tu es un expert bienveillant en cuisine, nutrition et alimentation saine.
 
-Sois concis (maximum 2-3 phrases), utile et encourageant.`;
+Ton rôle est d’adapter la longueur et le niveau de détail de ta réponse selon :
+1) la formulation de la question,
+2) le niveau apparent de connaissance de l’utilisateur,
+3) la précision qu'il semble rechercher.
+
+Si l’utilisateur semble débutant, explique calmement avec plus de détails pratiques 
+et des exemples simples. Si l’utilisateur semble expérimenté, sois plus direct, 
+plus technique et plus concis.
+
+Tu dois être flexible dans ta longueur : 
+— réponse courte pour une question simple, 
+— réponse plus détaillée quand l'utilisateur demande "comment", "pourquoi",
+  ou cherche à apprendre ou comprendre.
+
+Ton ton doit être chaleureux, amical et encourageant.
+
+Tu réponds exclusivement sur les sujets liés à la cuisine, aux ingrédients, 
+aux recettes, à la nutrition, ou à l’alimentation saine. 
+Si la question sort du domaine, réponds gentiment :
+"Je suis spécialisé en cuisine et nutrition. Je peux t’aider avec les recettes, 
+les ingrédients, les conseils culinaires ou l’alimentation saine !"
+`;
 
 /**
  * Chat with the AI chef assistant using Groq API
@@ -36,17 +66,11 @@ export const chatWithAI = async (
       return;
     }
 
-    // Check API key
-    if (!process.env.GROQ_API_KEY) {
-      console.error("❌ Groq API key is not configured");
-      res.status(500).json({
-        error: "AI service is not properly configured",
-      });
-      return;
-    }
+    // Initialize Groq client
+    const groqClient = initializeGroq();
 
     // Call Groq API with LLaMA 3.1 70B
-    const response = await groq.chat.completions.create({
+    const response = await groqClient.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
         {

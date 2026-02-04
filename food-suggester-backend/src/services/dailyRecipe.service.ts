@@ -76,19 +76,27 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
     const recipe = response.data.recipes[0];
     console.log("✅ Recipe fetched:", recipe.title);
 
-    // Fetch detailed nutrition information
-    const detailedResponse = await axios.get(
-      `${baseURL}/recipes/${recipe.id}/information`,
-      {
-        params: {
-          apiKey,
-          includeNutrition: true,
+    // Fetch detailed nutrition information (optional - don't fail if this fails)
+    let details = recipe;
+    try {
+      const detailedResponse = await axios.get(
+        `${baseURL}/recipes/${recipe.id}/information`,
+        {
+          params: {
+            apiKey,
+            includeNutrition: true,
+          },
+          timeout: 8000,
         },
-        timeout: 8000,
-      },
-    );
-
-    const details = detailedResponse.data;
+      );
+      details = detailedResponse.data;
+      console.log("✅ Detailed recipe info fetched");
+    } catch (detailError: any) {
+      console.warn("⚠️ Failed to fetch detailed info, using basic recipe:", {
+        message: detailError.message,
+      });
+      // Continue with basic recipe info
+    }
 
     // Extract nutrition info
     let calories = 0;
@@ -149,6 +157,13 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
       statusText: error.response?.statusText,
       url: error.config?.url,
     });
+
+    // Return fallback recipe if API fails
+    if (cachedRecipe) {
+      console.log("📦 Returning previously cached recipe as fallback");
+      return cachedRecipe;
+    }
+
     return null;
   }
 };

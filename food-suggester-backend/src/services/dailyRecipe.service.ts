@@ -98,7 +98,10 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
 
     if (!response.data.recipes || response.data.recipes.length === 0) {
       console.warn("⚠️ No recipes returned from Spoonacular API");
-      console.warn("📋 Full response data:", JSON.stringify(response.data, null, 2));
+      console.warn(
+        "📋 Full response data:",
+        JSON.stringify(response.data, null, 2),
+      );
       return null;
     }
 

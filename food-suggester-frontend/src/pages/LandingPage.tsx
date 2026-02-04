@@ -12,6 +12,7 @@ interface DailyRecipe {
   protein?: number;
   carbs?: number;
   fat?: number;
+  instructions?: string;
 }
 
 const LandingPage = () => {
@@ -19,6 +20,7 @@ const LandingPage = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [dailyRecipe, setDailyRecipe] = useState<DailyRecipe | null>(null);
   const [loadingRecipe, setLoadingRecipe] = useState(true);
+  const [showRecipeModal, setShowRecipeModal] = useState(false);
 
   // Fonction pour naviguer vers les pages d'auth
   const handleNavigation = (path: string) => {
@@ -58,7 +60,7 @@ const LandingPage = () => {
 
   const features = [
     {
-      icon: "mdi:chef-hat",
+      icon: "mdi:brain",
       title: "IA Culinaire",
       description:
         "Notre intelligence artificielle analyse vos ingrédients et vous propose des recettes personnalisées en quelques secondes.",
@@ -240,9 +242,16 @@ const LandingPage = () => {
                           }}
                           loading="lazy"
                         />
-                        <div className="absolute top-3 right-3 bg-[#FF6B35] text-white px-3 py-1.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg">
-                          <Icon icon="mdi:fire" className="w-4 h-4" />
-                          Nouveau!
+                        {/* Badge Recette du jour */}
+                        <div
+                          className="absolute top-3 left-3 bg-gradient-to-r from-[#FF6B35] to-[#E85826] text-white px-4 py-1.5 rounded-full text-base font-bold shadow-lg tracking-wide animate-pulse z-10"
+                          style={{ letterSpacing: 2 }}
+                        >
+                          <Icon
+                            icon="mdi:star"
+                            className="w-5 h-5 mr-1 inline-block"
+                          />
+                          Recette du jour
                         </div>
                       </div>
                       <h3 className="text-2xl font-bold text-[#A0522D] mb-3 font-serif line-clamp-2">
@@ -305,13 +314,53 @@ const LandingPage = () => {
                         </div>
                       )}
 
-                      <button className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E85826] text-white py-2.5 rounded-xl font-semibold hover:from-[#E85826] hover:to-[#D94A1A] transition-all duration-300 flex items-center justify-center gap-2 group/btn">
+                      <button
+                        className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E85826] text-white py-2.5 rounded-xl font-semibold hover:from-[#E85826] hover:to-[#D94A1A] transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-lg hover:scale-[1.03]"
+                        onClick={() => setShowRecipeModal(true)}
+                        aria-label="Voir la recette du jour"
+                      >
                         <Icon
                           icon="mdi:eye"
                           className="w-4 h-4 group-hover/btn:scale-110 transition-transform"
                         />
                         Voir la recette
                       </button>
+
+                      {/* Modal Recette du jour */}
+                      {showRecipeModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
+                          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative border border-[#FFE0CC] animate-zoom-in">
+                            <button
+                              className="absolute top-4 right-4 text-gray-400 hover:text-[#FF6B35] transition-colors text-2xl"
+                              onClick={() => setShowRecipeModal(false)}
+                              aria-label="Fermer"
+                            >
+                              <Icon icon="mdi:close" />
+                            </button>
+                            <div className="flex flex-col items-center mb-4">
+                              <Icon
+                                icon="mdi:chef-hat"
+                                className="w-10 h-10 text-[#FF6B35] mb-2"
+                              />
+                              <h2 className="text-xl font-bold text-[#A0522D] mb-2 text-center">
+                                Préparation
+                              </h2>
+                              <h3 className="text-lg font-semibold text-[#4A4238] mb-4 text-center">
+                                {dailyRecipe.title}
+                              </h3>
+                            </div>
+                            <div className="text-gray-700 whitespace-pre-line text-base leading-relaxed max-h-72 overflow-y-auto px-1">
+                              {dailyRecipe.instructions ? (
+                                dailyRecipe.instructions
+                              ) : (
+                                <span className="italic text-gray-400">
+                                  Aucune instruction disponible.
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="text-center py-8">

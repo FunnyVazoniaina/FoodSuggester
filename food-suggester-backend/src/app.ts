@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import recipeRoutes from "./routes/recipes.routes";
 import userRoutes from "./routes/user.routes";
+import aiRoutes from "./routes/ai.routes";
 import { Request, Response } from "express";
 import { connectToDatabase } from "./config/db";
 require("dotenv").config();
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

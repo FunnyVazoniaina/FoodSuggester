@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { Icon } from "@iconify/react";
+import NutritionAIChat from "./NutritionAIChat";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -61,17 +63,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
             {/* Chat with AI button */}
             <button
-              onClick={() => navigate("/ai-chat")}
+              onClick={() => setShowAIChat(true)}
               className="relative overflow-hidden text-white rounded-lg px-2.5 py-2 sm:px-3 md:px-4 transition-all text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 md:gap-2 shadow-sm hover:shadow-md hover:scale-105 whitespace-nowrap"
               style={{
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               }}
               title="Discuter avec l'IA"
             >
-              <Icon
-                icon="mdi:robot-excited-outline"
-                className="w-4 h-4 flex-shrink-0"
-              />
+              <Icon icon="mdi:brain" className="w-4 h-4 flex-shrink-0" />
               <span className="hidden xs:inline sm:hidden md:inline">IA</span>
             </button>
 
@@ -242,6 +241,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="flex-1 pt-20 px-4 sm:px-8 py-8 w-full transition-all duration-300 flex justify-center">
         <div className="w-full max-w-6xl">{children}</div>
       </main>
+
+      {/* AI Chat Modal */}
+      <NutritionAIChat
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+      />
     </div>
   );
 };

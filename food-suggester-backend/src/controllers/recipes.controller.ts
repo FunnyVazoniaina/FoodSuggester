@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import {
   getRecipesFromSpoonacular,
   getRecipesWithDetails,
-} from "../services/spoonacular.service.js";
+} from "../services/spoonacular.service";
 import {
   getDailyRecipe,
   getRecipeByTag,
-} from "../services/dailyRecipe.service.js";
+} from "../services/dailyRecipe.service";
 import { db } from "../config/db";
 
 export const suggestRecipes = async (req: Request, res: Response) => {

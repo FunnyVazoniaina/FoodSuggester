@@ -4,11 +4,17 @@ import dotenv from "dotenv";
 dotenv.config();
 // Service for daily recipe suggestions
 
-const apiKey = process.env.SPOONACULAR_API_KEY;
-const baseURL = process.env.SPOONACULAR_URL_BASE;
+// Utiliser process.env directement dans les fonctions pour éviter les problèmes de chargement
+const getApiKey = () => process.env.SPOONACULAR_API_KEY;
+const getBaseURL = () =>
+  process.env.SPOONACULAR_URL_BASE || "https://api.spoonacular.com";
 
+const apiKey = getApiKey();
+const baseURL = getBaseURL();
+
+// Vérification immédiate
 if (!apiKey) {
-  throw new Error("SPOONACULAR_API_KEY is missing in .env file");
+  console.warn("⚠️ SPOONACULAR_API_KEY not found at module load time");
 }
 
 interface DailyRecipe {
@@ -35,6 +41,27 @@ interface DailyRecipe {
 // Cache with timestamp
 let cachedRecipe: DailyRecipe | null = null;
 let cacheDate: string = "";
+
+// Fallback recipe for when API fails
+const FALLBACK_RECIPE: DailyRecipe = {
+  id: 1,
+  title: "Salade Méditerranéenne Fraîche",
+  image:
+    "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=500&h=500&fit=crop",
+  readyInMinutes: 15,
+  preparationMinutes: 15,
+  cookingMinutes: 0,
+  servings: 2,
+  calories: 280,
+  protein: 12,
+  carbs: 25,
+  fat: 15,
+  instructions:
+    "1. Lavez et coupez les tomates\n2. Coupez le concombre en dés\n3. Émiettez la feta\n4. Préparez la vinaigrette\n5. Mélangez tous les ingrédients",
+  sourceUrl: "https://www.example.com/recipe",
+  steps: [],
+  timestamp: new Date().toISOString(),
+};
 
 /**
  * Get a different recipe each day from Spoonacular API
@@ -64,49 +91,59 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
       return null;
     }
 
-    console.log("🔄 Fetching random recipe from Spoonacular API...");
+    console.log(
+      "🔄 Fetching daily recipe from Spoonacular API using complexSearch...",
+    );
 
-    // Try without tags first (some API tiers might have restrictions)
-    let response;
-    try {
-      response = await axios.get(`${baseURL}/recipes/random`, {
-        params: {
-          number: 1,
-          apiKey,
-          tags: "vegetarian,breakfast,dessert,dinner,lunch,snack",
-        },
-        timeout: 8000,
-      });
-    } catch (error: any) {
-      console.warn("⚠️ Request with tags failed, trying without tags");
-      // Fallback to request without tags
-      response = await axios.get(`${baseURL}/recipes/random`, {
-        params: {
-          number: 1,
-          apiKey,
-        },
-        timeout: 8000,
-      });
-    }
-
-    console.log("📦 Spoonacular API Response:", {
-      status: response.status,
-      hasRecipes: !!response.data.recipes,
-      recipesLength: response.data.recipes?.length || 0,
-      dataKeys: Object.keys(response.data || {}),
+    // Use complexSearch instead of random (more reliable)
+    const response = await axios.get(`${baseURL}/recipes/complexSearch`, {
+      params: {
+        number: 10, // Get multiple recipes to select from
+        apiKey,
+        tags: "vegetarian,breakfast,dessert,dinner,lunch,snack",
+        addRecipeNutrition: true,
+        fillIngredients: true,
+      },
+      timeout: 10000,
     });
 
-    if (!response.data.recipes || response.data.recipes.length === 0) {
-      console.warn("⚠️ No recipes returned from Spoonacular API");
+    console.log("📦 Spoonacular complexSearch Response:", {
+      status: response.status,
+      totalResults: response.data.totalResults,
+      recipesLength: response.data.results?.length || 0,
+    });
+
+    if (!response.data.results || response.data.results.length === 0) {
+      console.warn("⚠️ No recipes returned from complexSearch API");
       console.warn(
         "📋 Full response data:",
         JSON.stringify(response.data, null, 2),
       );
-      return null;
+      console.log("📌 Using fallback recipe due to empty API response");
+
+      // Update cache with fallback recipe
+      cachedRecipe = {
+        ...FALLBACK_RECIPE,
+        timestamp: new Date().toISOString(),
+      };
+      cacheDate = today;
+
+      return cachedRecipe;
     }
 
-    const recipe = response.data.recipes[0];
-    console.log("✅ Recipe fetched:", recipe.title);
+    // Select recipe deterministically based on day of year
+    const todayDateObj = new Date();
+    const dayOfYear = Math.floor(
+      (todayDateObj.getTime() -
+        new Date(todayDateObj.getFullYear(), 0, 0).getTime()) /
+        (1000 * 60 * 60 * 24),
+    );
+    const recipeIndex = dayOfYear % response.data.results.length;
+    const recipe = response.data.results[recipeIndex];
+
+    console.log(
+      `✅ Recipe fetched: "${recipe.title}" (index ${recipeIndex}/${response.data.results.length})`,
+    );
 
     // Fetch detailed nutrition information (optional - don't fail if this fails)
     let details = recipe;
@@ -196,45 +233,64 @@ export const getDailyRecipe = async (): Promise<DailyRecipe | null> => {
       return cachedRecipe;
     }
 
-    return null;
+    console.log("📌 Using default fallback recipe due to API error");
+    return {
+      ...FALLBACK_RECIPE,
+      timestamp: new Date().toISOString(),
+    };
   }
 };
 
 /**
  * Search for recipes by a specific tag or category
+ * Uses complexSearch for better reliability
  */
 export const getRecipeByTag = async (
   tag: string,
 ): Promise<DailyRecipe | null> => {
   try {
-    const response = await axios.get(`${baseURL}/recipes/random`, {
+    // Use complexSearch instead of random for better reliability
+    const response = await axios.get(`${baseURL}/recipes/complexSearch`, {
       params: {
-        number: 1,
+        number: 10,
         apiKey,
         tags: tag,
+        addRecipeNutrition: true,
+        fillIngredients: true,
       },
-      timeout: 8000,
+      timeout: 10000,
     });
 
-    if (!response.data.recipes || response.data.recipes.length === 0) {
+    if (!response.data.results || response.data.results.length === 0) {
+      console.warn(`⚠️ No recipes found for tag: ${tag}`);
       return null;
     }
 
-    const recipe = response.data.recipes[0];
+    // Select first recipe from results
+    const recipe = response.data.results[0];
+    console.log(`✅ Recipe found for tag "${tag}":`, recipe.title);
 
-    // Fetch detailed information
-    const detailedResponse = await axios.get(
-      `${baseURL}/recipes/${recipe.id}/information`,
-      {
-        params: {
-          apiKey,
-          includeNutrition: true,
+    // Fetch detailed information for instructions
+    let details = recipe;
+    try {
+      const detailedResponse = await axios.get(
+        `${baseURL}/recipes/${recipe.id}/information`,
+        {
+          params: {
+            apiKey,
+            includeNutrition: true,
+          },
+          timeout: 8000,
         },
-        timeout: 8000,
-      },
-    );
-
-    const details = detailedResponse.data;
+      );
+      details = detailedResponse.data;
+      console.log("✅ Detailed recipe info fetched");
+    } catch (detailError: any) {
+      console.warn("⚠️ Failed to fetch detailed info, using basic recipe:", {
+        message: detailError.message,
+      });
+      // Continue with basic recipe info
+    }
 
     // Extract nutrition info
     let calories = 0;

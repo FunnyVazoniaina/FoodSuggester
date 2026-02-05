@@ -47,15 +47,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex flex-col min-h-screen bg-gray-50 font-inter">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200/50 shadow-sm z-50">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center min-w-0">
             <button
               onClick={() => setDrawerOpen(!drawerOpen)}
-              className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg mr-3 transition-colors"
+              className="md:hidden p-1 sm:p-2 text-gray-700 hover:bg-gray-100 rounded-lg mr-2 sm:mr-3 transition-colors flex-shrink-0"
             >
-              <Icon icon="mdi:menu" className="w-6 h-6" />
+              <Icon icon="mdi:menu" className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
               Food Suggester
             </h1>
           </div>
@@ -64,14 +64,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Chat with AI button */}
             <button
               onClick={() => setShowAIChat(true)}
-              className="relative overflow-hidden text-white rounded-lg px-2.5 py-2 sm:px-3 md:px-4 transition-all text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 md:gap-2 shadow-sm hover:shadow-md hover:scale-105 whitespace-nowrap"
+              className="relative overflow-hidden text-white rounded-lg px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 transition-all text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-1.5 md:gap-2 shadow-sm hover:shadow-md hover:scale-105 whitespace-nowrap"
               style={{
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               }}
               title="Discuter avec l'IA"
             >
               <Icon icon="mdi:brain" className="w-4 h-4 flex-shrink-0" />
-              <span className="hidden xs:inline sm:hidden md:inline">IA</span>
+              <span className="hidden sm:inline">IA</span>
             </button>
 
             {/* Desktop logout button */}
@@ -238,7 +238,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
 
       {/* Main */}
-      <main className="flex-1 pt-20 px-4 sm:px-8 py-8 w-full transition-all duration-300 flex justify-center">
+      <main className="flex-1 pt-16 sm:pt-20 px-3 sm:px-4 md:px-8 py-4 sm:py-8 w-full transition-all duration-300 flex justify-center overflow-x-hidden">
         <div className="w-full max-w-6xl">{children}</div>
       </main>
 

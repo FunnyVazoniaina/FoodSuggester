@@ -2,6 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import aiChatService from "../services/aiChatService";
 
+// ============================================================================
+// INTERFACES
+// ============================================================================
+
 interface Message {
   id: string;
   text: string;
@@ -19,10 +23,23 @@ interface Position {
   y: number;
 }
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
 const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
   isOpen,
   onClose,
 }) => {
+  // =========================================================================
+  // STATE
+  // =========================================================================
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -41,10 +58,49 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
+  // =========================================================================
+  // REFS
+  // =========================================================================
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // Detect screen size changes
+  // =========================================================================
+  // EFFECTS - HISTORY LOADING
+  // =========================================================================
+
+  useEffect(() => {
+    if (isOpen) {
+      const savedHistory = aiChatService.getHistory();
+      if (savedHistory.length > 0) {
+        const loadedMessages: Message[] = [
+          {
+            id: "welcome",
+            text: "Bonjour! 👋 Je suis votre assistant culinaire et nutritionnel. Je peux vous aider avec des questions sur l'alimentation saine, les recettes, les valeurs nutritionnelles, et les bienfaits des aliments. Comment puis-je vous aider?",
+            sender: "assistant",
+            timestamp: new Date(),
+          },
+          ...savedHistory.map((msg, idx) => ({
+            id: `msg-${idx}`,
+            text: msg.content,
+            sender: msg.role as "user" | "assistant",
+            timestamp: new Date(),
+          })),
+        ];
+        setMessages(loadedMessages);
+        console.log(
+          "✅ Historique de chat restauré:",
+          loadedMessages.length - 1,
+          "messages",
+        );
+      }
+    }
+  }, [isOpen]);
+
+  // =========================================================================
+  // EFFECTS - RESPONSIVE DESIGN
+  // =========================================================================
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -58,15 +114,18 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // =========================================================================
+  // EFFECTS - AUTO-SCROLL
+  // =========================================================================
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle drag start
+  // =========================================================================
+  // EFFECTS - DRAG HANDLING
+  // =========================================================================
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMobile) return;
 
@@ -83,7 +142,6 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
     }
   };
 
-  // Handle drag move
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || isMobile) return;
@@ -91,7 +149,6 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
       const newX = e.clientX - dragOffset.x;
       const newY = e.clientY - dragOffset.y;
 
-      // Keep window within viewport
       const maxX = window.innerWidth - 320;
       const maxY = window.innerHeight - 100;
 
@@ -116,13 +173,18 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
     };
   }, [isDragging, dragOffset, isMobile]);
 
+  // =========================================================================
+  // HANDLERS
+  // =========================================================================
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    // Add user message
+    const userInputText = inputValue;
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputValue,
+      text: userInputText,
       sender: "user",
       timestamp: new Date(),
     };
@@ -132,14 +194,41 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
     setLoading(true);
 
     try {
-      const response = await aiChatService.sendMessage(inputValue);
+      const conversationHistory: ChatMessage[] = messages
+        .filter((msg) => msg.id !== "welcome")
+        .map((msg) => ({
+          role: msg.sender,
+          content: msg.text,
+        }));
+
+      conversationHistory.push({
+        role: "user",
+        content: userInputText,
+      });
+
+      const response = await aiChatService.sendMessage(
+        userInputText,
+        conversationHistory,
+      );
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: response,
         sender: "assistant",
         timestamp: new Date(),
       };
+
       setMessages((prev) => [...prev, assistantMessage]);
+
+      const updatedHistory: ChatMessage[] = [
+        ...conversationHistory,
+        {
+          role: "assistant",
+          content: response,
+        },
+      ];
+      aiChatService.saveHistory(updatedHistory);
+      console.log("✅ Historique sauvegardé");
     } catch (error: any) {
       console.error("Error getting AI response:", error);
       const errorMessage: Message = {
@@ -156,16 +245,18 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
     }
   };
 
+  // =========================================================================
+  // RENDER
+  // =========================================================================
+
   if (!isOpen) return null;
 
-  // Mobile layout: fullscreen modal
+  // Mobile layout
   if (isMobile) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col">
-        {/* Backdrop */}
         <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-        {/* Chat Window - Fullscreen on mobile */}
         <div className="relative bg-white w-full h-full flex flex-col border-t border-[#FFE0CC] z-10">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#FF6B35] to-[#E85826] text-white p-4 flex items-center justify-between shadow-md">
@@ -254,13 +345,9 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
     );
   }
 
-  // Desktop layout: draggable floating window
+  // Desktop layout
   return (
-    <>
-      {/* Lightweight backdrop - doesn't block interaction outside modal */}
-      <div className="fixed inset-0 z-40 bg-transparent" onClick={onClose} />
-
-      {/* Draggable Chat Window - Desktop only */}
+    <div className="fixed inset-0 z-40 bg-transparent" onClick={onClose}>
       <div
         ref={chatWindowRef}
         className={`fixed z-50 w-96 h-[600px] bg-white rounded-3xl shadow-2xl border border-[#FFE0CC] flex flex-col overflow-hidden transition-shadow ${
@@ -271,8 +358,9 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
           top: `${position.y}px`,
           cursor: isDragging ? "grabbing" : "grab",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - Draggable area */}
+        {/* Header */}
         <div
           className="bg-gradient-to-r from-[#FF6B35] to-[#E85826] text-white p-4 flex items-center justify-between shadow-md cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
@@ -359,7 +447,7 @@ const NutritionAIChat: React.FC<NutritionAIChatProps> = ({
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
